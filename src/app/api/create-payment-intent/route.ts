@@ -42,7 +42,6 @@ export async function POST(req: Request) {
             customer = customers.data[0] ?? await stripe.customers.create({ email })
         }
 
-        // Create and confirm PaymentIntent
         const paymentIntent = await stripe.paymentIntents.create({
             amount: Math.round(amount * 100),
             currency: 'eur',
@@ -56,7 +55,6 @@ export async function POST(req: Request) {
             },
         })
 
-        // Handle confirmation status
         if (paymentIntent.status !== 'succeeded') {
             return NextResponse.json(
                 {
@@ -77,7 +75,7 @@ export async function POST(req: Request) {
         })
 
     } catch (error) {
-        console.error('Error in create-payment-intent:', error) // Log the error for debugging
+        console.error('Error in create-payment-intent:', error)
         const errorMessage = error instanceof Error ? error.message : 'Unknown error'
         return NextResponse.json(
             { error: `Payment failed: ${errorMessage}` },
