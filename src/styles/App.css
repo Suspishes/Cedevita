@@ -1,0 +1,21 @@
+.section {
+    margin: 2rem auto;
+    padding: 1rem;
+    max-width: 800px;
+    background-color: #f4f4f4;
+    border-left: 6px solid #333;
+}
+
+.section h2 {
+    color: #333;
+}
+
+.section p {
+    font-size: 1.2rem;
+    color: #666;
+}
+
+main {
+    padding: 20px;
+    background: #eaeaea;
+}
