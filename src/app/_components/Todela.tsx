@@ -190,10 +190,7 @@ export default function HomePage() {
           <Box
             sx={{
               position: 'relative',
-              height: {
-                xs: '60vh',
-                md: '80vh',
-              },
+              height: '100vh',
               width: '100%',
               display: 'flex',
               alignItems: 'center',
@@ -230,7 +227,7 @@ export default function HomePage() {
               <EmblaCarousel
                 slides={[
                   { src: '/ura.jpg', alt: 'Parket 1' },
-                  { src: '/morje.jpg', alt: 'Parket 2' },
+                  { src: '/morje.jpeg', alt: 'Parket 2' },
                   { src: '/pes.webp', alt: 'Parket 3' },
                 ]}
 
