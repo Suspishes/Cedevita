@@ -23,6 +23,9 @@ import {
 } from "@mui/material";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Menu as MenuIcon, Close as CloseIcon, Phone, Email, Facebook, LocationOn } from '@mui/icons-material';
+//import { EmblaCarousel } from 'embla-carousel-react';
+import useEmblaCarousel from 'embla-carousel-react';
+import Autoplay from 'embla-carousel-autoplay';
 
 const theme = createTheme({
   palette: {
@@ -37,7 +40,75 @@ const theme = createTheme({
     },
   },
 });
+const chipStyle = {
+  bgcolor: 'white',
+  boxShadow: 1,
+  m: 0.5,
+  transition: 'all 0.2s ease',
+  '&:hover': {
+    bgcolor: 'primary.light',
+    transform: 'scale(1.1)',
+    color: 'white',
+    cursor: 'pointer',
+  },
+};
+function EmblaCarousel({
+  slides,
+}: {
+  slides: { src: string; alt: string }[]
+}) {
+  const [emblaRef] = useEmblaCarousel(
+    { loop: true },
+    [
+      Autoplay({
+        delay: 10000,
+        stopOnInteraction: false,
+      }),
+    ]
+  )
 
+  return (
+    <Box
+      ref={emblaRef}
+      sx={{
+        overflow: 'hidden',
+        width: '100%',
+        height: '100%',
+      }}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          height: '100%',
+        }}
+      >
+        {slides.map((slide, index) => (
+          <Box
+            key={index}
+            sx={{
+              flex: '0 0 100%',
+              minWidth: 0,
+              height: '100%',
+            }}
+          >
+            <Box
+              component="img"
+              src={slide.src}
+              alt={slide.alt}
+              sx={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                filter: 'brightness(0.45)',
+                display: 'block',
+              }}
+            />
+          </Box>
+        ))}
+      </Box>
+    </Box>
+  )
+}
 export default function HomePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -119,31 +190,58 @@ export default function HomePage() {
           <Box
             sx={{
               position: 'relative',
-              height: '80vh',
+              height: {
+                xs: '60vh',
+                md: '80vh',
+              },
+              width: '100%',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               color: 'common.white',
-              '&::before': {
-                content: '""',
+              overflow: 'hidden',
+            }}
+          >
+            <Box
+              sx={{
                 position: 'absolute',
                 top: 0,
                 left: 0,
                 right: 0,
                 bottom: 0,
-                backgroundImage: 'url("/test_slika_1.jpg")',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                filter: 'brightness(0.45)',
-              },
-            }}
-          >
-            <Box sx={{ position: 'relative', textAlign: 'center' }}>
+                '& .embla__slide': {
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                },
+                '& .embla__slide__img': {
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  filter: 'brightness(0.45)',
+                },
+              }}
+            >
+              <EmblaCarousel
+                slides={[
+                  { src: '/ura.jpg', alt: 'Parket 1' },
+                  { src: '/morje.jpg', alt: 'Parket 2' },
+                  { src: '/pes.webp', alt: 'Parket 3' },
+                ]}
+
+              />
+            </Box>
+            <Box sx={{ position: 'relative', textAlign: 'center', zIndex: 1 }}>
               <Typography variant="h2" component="h1" gutterBottom>
                 Kakovostno polaganje in obnova parketa
               </Typography>
               <Typography variant="h5" paragraph>
-                Z več kot 29-letno tradicijo ustvarjamo talne površine, ki navdušujejo.
+                Z več kot 29-letno tradicijo ustvarjamo talne površine, navdušujejo.
               </Typography>
               <Button
                 href="/kontakt"
@@ -291,168 +389,68 @@ export default function HomePage() {
             <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 2 }}>
               <Chip
                 label="Okrožno sodišče Novo mesto"
-                sx={{
-                  bgcolor: 'white',
-                  boxShadow: 1,
-                  m: 0.5,
-                  '&:hover': {
-                    bgcolor: 'primary.light',
-                  },
-                }}
+                sx={chipStyle}
               />
               <Chip
                 label="Okrožno državno tožilstvo Novo mesto"
-                sx={{
-                  bgcolor: 'white',
-                  boxShadow: 1,
-                  m: 0.5,
-                  '&:hover': {
-                    bgcolor: 'primary.light',
-                  },
-                }}
+                sx={chipStyle}
+              />
+              <Chip
+                label="Okrožno sodišče v Celju"
+                sx={chipStyle}
               />
               <Chip
                 label="Okrožno državno tožilstvo v Ljubljani"
-                sx={{
-                  bgcolor: 'white',
-                  boxShadow: 1,
-                  m: 0.5,
-                  '&:hover': {
-                    bgcolor: 'primary.light',
-                  },
-                }}
+                sx={chipStyle}
               />
+
               <Chip
                 label="Okrajno sodišče v Grosupljem"
-                sx={{
-                  bgcolor: 'white',
-                  boxShadow: 1,
-                  m: 0.5,
-                  '&:hover': {
-                    bgcolor: 'primary.light',
-                  },
-                }}
+                sx={chipStyle}
               />
               <Chip
                 label="Okrajno sodišče v Kočevju"
-                sx={{
-                  bgcolor: 'white',
-                  boxShadow: 1,
-                  m: 0.5,
-                  '&:hover': {
-                    bgcolor: 'primary.light',
-                  },
-                }}
+                sx={chipStyle}
               />
               <Chip
                 label="Okrožno sodišče v Kranju"
-                sx={{
-                  bgcolor: 'white',
-                  boxShadow: 1,
-                  m: 0.5,
-                  '&:hover': {
-                    bgcolor: 'primary.light',
-                  },
-                }}
+                sx={chipStyle}
               />
               <Chip
                 label="Dolenjska projektiva Novo mesto"
-                sx={{
-                  bgcolor: 'white',
-                  boxShadow: 1,
-                  m: 0.5,
-                  '&:hover': {
-                    bgcolor: 'primary.light',
-                  },
-                }}
+                sx={chipStyle}
               />
               <Chip
                 label="CGP Novo mesto"
-                sx={{
-                  bgcolor: 'white',
-                  boxShadow: 1,
-                  m: 0.5,
-                  '&:hover': {
-                    bgcolor: 'primary.light',
-                  },
-                }}
+                sx={chipStyle}
               />
               <Chip
                 label="Ministrstvo za obrambo – Uprava za obrambo Novo mesto"
-                sx={{
-                  bgcolor: 'white',
-                  boxShadow: 1,
-                  m: 0.5,
-                  '&:hover': {
-                    bgcolor: 'primary.light',
-                  },
-                }}
+                sx={chipStyle}
               />
               <Chip
                 label="Terme Čatež"
-                sx={{
-                  bgcolor: 'white',
-                  boxShadow: 1,
-                  m: 0.5,
-                  '&:hover': {
-                    bgcolor: 'primary.light',
-                  },
-                }}
+                sx={chipStyle}
               />
               <Chip
                 label="Mega d.o.o. Kranj"
-                sx={{
-                  bgcolor: 'white',
-                  boxShadow: 1,
-                  m: 0.5,
-                  '&:hover': {
-                    bgcolor: 'primary.light',
-                  },
-                }}
+                sx={chipStyle}
               />
               <Chip
                 label="Lekarna Novak, Novo mesto"
-                sx={{
-                  bgcolor: 'white',
-                  boxShadow: 1,
-                  m: 0.5,
-                  '&:hover': {
-                    bgcolor: 'primary.light',
-                  },
-                }}
+                sx={chipStyle}
               />
               <Chip
                 label="Vrtec pedenjped Novo Mesto"
-                sx={{
-                  bgcolor: 'white',
-                  boxShadow: 1,
-                  m: 0.5,
-                  '&:hover': {
-                    bgcolor: 'primary.light',
-                  },
-                }}
+                sx={chipStyle}
               />
               <Chip
                 label="Mikrografija d.o.o. Novo Mesto"
-                sx={{
-                  bgcolor: 'white',
-                  boxShadow: 1,
-                  m: 0.5,
-                  '&:hover': {
-                    bgcolor: 'primary.light',
-                  },
-                }}
+                sx={chipStyle}
               />
               <Chip
                 label="AS invest d.o.o."
-                sx={{
-                  bgcolor: 'white',
-                  boxShadow: 1,
-                  m: 0.5,
-                  '&:hover': {
-                    bgcolor: 'primary.light',
-                  },
-                }}
+                sx={chipStyle}
               />
             </Box>
             <Box sx={{ mt: 4, bgcolor: 'primary.main', color: 'primary.contrastText', p: 3, borderRadius: 2 }}>
