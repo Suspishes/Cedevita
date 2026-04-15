@@ -55,7 +55,12 @@ const chipStyle = {
 function EmblaCarousel({
   slides,
 }: {
-  slides: { src: string; alt: string }[]
+  slides: {
+    src: string;
+    alt: string;
+    mobilePosition?: string;
+    desktopPosition?: string;
+  }[]
 }) {
   const [emblaRef] = useEmblaCarousel(
     { loop: true },
@@ -76,12 +81,7 @@ function EmblaCarousel({
         height: '100%',
       }}
     >
-      <Box
-        sx={{
-          display: 'flex',
-          height: '100%',
-        }}
-      >
+      <Box sx={{ display: 'flex', height: '100%' }}>
         {slides.map((slide, index) => (
           <Box
             key={index}
@@ -89,18 +89,26 @@ function EmblaCarousel({
               flex: '0 0 100%',
               minWidth: 0,
               height: '100%',
+              backgroundImage: `url(${slide.src})`,
+              backgroundSize: 'cover',
+              backgroundRepeat: 'no-repeat',
+              // ODZIVNO: Drugačna pozicija za mobilne naprave
+              backgroundPosition: {
+                xs: slide.mobilePosition ?? 'center',    // Telefoni (ozek zaslon)
+                md: slide.desktopPosition ?? 'center',   // Namizni računalniki (širok zaslon)
+              },
+              position: 'relative',
             }}
           >
+            {/* Overlay za zatemnitev */}
             <Box
-              component="img"
-              src={slide.src}
-              alt={slide.alt}
               sx={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                filter: 'brightness(0.45)',
-                display: 'block',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(0, 0, 0, 0.45)',
               }}
             />
           </Box>
@@ -115,7 +123,7 @@ export default function HomePage() {
 
   return (
     <ThemeProvider theme={theme}>
-      <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+      <Box sx={{ bgcolor: 'background.default' }}>
         <AppBar position="relative" sx={{ bgcolor: '#1f2937', boxShadow: 2, py: 2 }}>
           <Container maxWidth="lg">
             <Toolbar disableGutters>
@@ -190,7 +198,8 @@ export default function HomePage() {
           <Box
             sx={{
               position: 'relative',
-              height: '100vh',
+
+              height: { xs: 'calc(100vh - 80px)', md: 'calc(100vh - 88px)' },
               width: '100%',
               display: 'flex',
               alignItems: 'center',
@@ -206,31 +215,32 @@ export default function HomePage() {
                 left: 0,
                 right: 0,
                 bottom: 0,
-                '& .embla__slide': {
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
-                },
-                '& .embla__slide__img': {
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  filter: 'brightness(0.45)',
-                },
+
               }}
             >
               <EmblaCarousel
                 slides={[
-                  { src: '/ura.jpg', alt: 'Parket 1' },
-                  { src: '/morje.jpeg', alt: 'Parket 2' },
-                  { src: '/pes.webp', alt: 'Parket 3' },
+                  {
+                    src: '/ura.jpg',
+                    alt: 'Parket 1',
+                    mobilePosition: 'center',
+                    desktopPosition: 'center'
+                  },
+                  {
+                    src: '/morje.jpeg',
+                    alt: 'Parket 2',
+                    mobilePosition: 'center',
+                    desktopPosition: 'center'
+                  },
+                  {
+                    src: '/pes.webp',
+                    alt: 'Parket 3',
+                    // Telefon: pokaži glavo (zgornji del)
+                    mobilePosition: '50% 25%',
+                    // Namizje: slika je širša, zato lahko pokažemo malo nižje
+                    desktopPosition: '50% 35%',
+                  },
                 ]}
-
               />
             </Box>
             <Box sx={{ position: 'relative', textAlign: 'center', zIndex: 1 }}>
@@ -478,9 +488,26 @@ export default function HomePage() {
                       <Typography variant="body2" color="text.secondary" paragraph>
                         Izbira parketa je pomemben korak pri urejanju prostora. Razmislite o načinu uporabe, svetlobi in stilu doma. Pravi parket bo prostoru dodal toplino, trajnost in brezčasno eleganco.
                       </Typography>
-                      <Button component={Link} href="/blog/clanek1" variant="contained" color="primary" sx={{ color: 'white' }}>
-                        Preberi več
-                      </Button>
+                      <Box sx={{ textAlign: 'center', mt: 2 }}>
+                        <Button
+                          component={Link}
+                          href="/blog/clanek1"
+                          variant="contained"
+                          color="primary"
+                          sx={{
+                            color: 'white',
+                            display: 'inline-block',
+                            transition: 'transform 0.18s ease, box-shadow 0.18s ease',
+                            transform: 'none',
+                            '&:hover': {
+                              transform: 'scale(1.08)',
+                              boxShadow: 6,
+                            },
+                          }}
+                        >
+                          Preberi več
+                        </Button>
+                      </Box>
                     </CardContent>
                   </Card>
                 </Grid>
@@ -499,9 +526,26 @@ export default function HomePage() {
                       <Typography variant="body2" color="text.secondary" paragraph>
                         Poletje prinaša posebne izzive za vaš parket. V tem članku vam predstavljamo nekaj prvovrstnih nasvetov za ohranjanje lepote vašega parketa med vročimi poletnimi dnevi.
                       </Typography>
-                      <Button component={Link} href="/blog/clanek2" variant="contained" color="primary" sx={{ color: 'white' }}>
-                        Preberi več
-                      </Button>
+                      <Box sx={{ textAlign: 'center', mt: 2 }}>
+                        <Button
+                          component={Link}
+                          href="/blog/clanek2"
+                          variant="contained"
+                          color="primary"
+                          sx={{
+                            color: 'white',
+                            display: 'inline-block',
+                            transition: 'transform 0.18s ease, box-shadow 0.18s ease',
+                            transform: 'none',
+                            '&:hover': {
+                              transform: 'scale(1.08)',
+                              boxShadow: 6,
+                            },
+                          }}
+                        >
+                          Preberi več
+                        </Button>
+                      </Box>
                     </CardContent>
                   </Card>
                 </Grid>
@@ -520,9 +564,26 @@ export default function HomePage() {
                       <Typography variant="body2" color="text.secondary" paragraph>
                         Oljen parket je vedno bolj priljubljena izbira. Odkrijte njegove prednosti, od naravnega videza do enostavnega vzdrževanja, in zakaj je odlična izbira za vaš dom.
                       </Typography>
-                      <Button component={Link} href="/blog/clanek3" variant="contained" color="primary" sx={{ color: 'white' }}>
-                        Preberi več
-                      </Button>
+                      <Box sx={{ textAlign: 'center', mt: 2 }}>
+                        <Button
+                          component={Link}
+                          href="/blog/clanek3"
+                          variant="contained"
+                          color="primary"
+                          sx={{
+                            color: 'white',
+                            display: 'inline-block',
+                            transition: 'transform 0.18s ease, box-shadow 0.18s ease',
+                            transform: 'none',
+                            '&:hover': {
+                              transform: 'scale(1.08)',
+                              boxShadow: 6,
+                            },
+                          }}
+                        >
+                          Preberi več
+                        </Button>
+                      </Box>
                     </CardContent>
                   </Card>
                 </Grid>

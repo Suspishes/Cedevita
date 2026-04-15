@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
 import { getAllIzdelki } from './server'
@@ -19,10 +19,16 @@ import {
   ListItem,
   ListItemText,
   IconButton,
-  useMediaQuery
+  useMediaQuery,
+  Badge,
+  Popover,
+  Avatar,
+  Stack
 } from "@mui/material"
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { Menu as MenuIcon, Close as CloseIcon, Phone, Email, Facebook, LocationOn, ShoppingCart } from '@mui/icons-material';
+import { Add as AddIcon, Remove as RemoveIcon } from '@mui/icons-material'
+import { useKosaricaStore, type Izdelek as KosaricaIzdelek } from '../../kosarica/components/backend';
 import type { Izdelek } from '../../kosarica/components/backend';
 
 
@@ -59,6 +65,25 @@ export default function IzdelkiList() {
   const handleClear = () => {
     setSearchTerm('')
   }
+
+  // cart state/hooks must be declared unconditionally (before any early returns)
+  const [cartAnchor, setCartAnchor] = useState<HTMLElement | null>(null);
+  const cartOpen = Boolean(cartAnchor);
+  const kosarica = useKosaricaStore((s) => s.kosarica);
+  const povecajKolicino = useKosaricaStore((s) => s.povecajKolicino);
+  const zmanjsajKolicino = useKosaricaStore((s) => s.zmanjsajKolicino);
+
+  const totalCount = kosarica.reduce((sum, i) => sum + (i.KolicinaVKosarici || 0), 0);
+  const closeTimerRef = useRef<number | undefined>(undefined);
+
+  const handleCartEnter = (e: React.MouseEvent<HTMLElement>) => {
+    if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current);
+    setCartAnchor(e.currentTarget);
+  };
+
+  const handleCartLeave = () => {
+    closeTimerRef.current = window.setTimeout(() => setCartAnchor(null), 150);
+  };
 
   if (isLoading) return <Typography>Nalaganje...</Typography>
   if (error instanceof Error) return <Typography>{error.message}</Typography>
@@ -186,6 +211,67 @@ export default function IzdelkiList() {
             ))}
           </Grid>
         </Container>
+
+        {/* Floating circular cart button in bottom-right - show only when there's at least one item */}
+        {totalCount > 0 && (
+          <Box sx={{ position: 'fixed', right: 20, bottom: 20, zIndex: 1400 }}>
+            <IconButton
+              onMouseEnter={handleCartEnter}
+              onMouseLeave={handleCartLeave}
+              onClick={(e) => setCartAnchor(e.currentTarget)}
+              aria-label="Odprem košarico"
+              sx={{
+                bgcolor: 'primary.main',
+                color: 'common.white',
+                width: 56,
+                height: 56,
+                borderRadius: '50%',
+                boxShadow: 3,
+                '&:hover': { bgcolor: 'primary.dark', transform: 'scale(1.03)' },
+              }}
+            >
+              <Badge badgeContent={totalCount} color="secondary">
+                <ShoppingCart />
+              </Badge>
+            </IconButton>
+
+            <Popover
+              open={cartOpen}
+              anchorEl={cartAnchor}
+              onClose={() => setCartAnchor(null)}
+              anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+              transformOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              PaperProps={{ onMouseEnter: () => { if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current); }, onMouseLeave: handleCartLeave, sx: { p: 2, minWidth: 280 } }}
+            >
+              <Box>
+                {kosarica.map((item: KosaricaIzdelek) => (
+                  <Box key={item.IzdelkiID} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <Avatar src={item.Slika} alt={item.Ime} sx={{ width: 44, height: 44 }} />
+                      <Box>
+                        <Typography variant="body2" sx={{ fontWeight: 'bold' }}>{item.Ime}</Typography>
+                        <Typography variant="caption">{item.Cena?.toFixed(2)} €</Typography>
+                      </Box>
+                    </Stack>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <IconButton size="small" onClick={() => zmanjsajKolicino(item.IzdelkiID)}>
+                        <RemoveIcon fontSize="small" />
+                      </IconButton>
+                      <Typography variant="body2">{item.KolicinaVKosarici}</Typography>
+                      <IconButton size="small" onClick={() => povecajKolicino(item.IzdelkiID)}>
+                        <AddIcon fontSize="small" />
+                      </IconButton>
+                    </Box>
+                  </Box>
+                ))}
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+                  <Button href="/kosarica" variant="contained" color="primary">Poglej košarico</Button>
+                  <Button variant="outlined" color="primary">Na blagajno</Button>
+                </Box>
+              </Box>
+            </Popover>
+          </Box>
+        )}
 
         <Box component="footer" sx={{ bgcolor: '#1f2937', color: 'common.white', py: 6 }}>
           <Container maxWidth="lg" sx={{ paddingTop: 4 }}>
